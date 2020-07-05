@@ -1,6 +1,0 @@
-print('Hello World')
-print('Welcome')
-print('asd')
-print('test1')
-print('test1111111')
-print('test 1 again')
