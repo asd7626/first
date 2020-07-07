@@ -15,7 +15,7 @@ class Character:
         self.luck = luck
         self.health = self.power * 10
         self.defence = self.agility * 5
-        self.attack_speed = 60 / self.agility # перерыв между атаками
+        self.attack_speed = 60 / self.agility  # перерыв между атаками
         self.level = 0
         self.punch = 0
 
@@ -26,6 +26,35 @@ class Character:
 
     def lose_hp(self, x):
         self.health = self.health - x
+
+    def recover(self):
+        self.health = self.power * 10
+        print('Персонаж восстановился после боя')
+
+    def level_up(self):
+        self.level += 1
+        print('Персонаж достиг {} уровня'.format(self.level))
+
+    def level_down(self):
+        self.level -= 1
+        print('Персонаж опустился до {} уровня'.format(self.level))
+
+    def skills_up(self):
+        print('У вас 3 очка для повышения характеристик персонажа')
+        p, a, l = map(int, input('Увеличьте силу, ловкость и удачу: ').split(' '))
+        while (p + a + l) != 3:
+            p, a, l = map(int, input('Увеличьте силу, ловкость и удачу (у вас 3 очка): ').split(' '))
+        self.power += p
+        self.agility += a
+        self.luck += l
+        print('Сила увеличена на {}, ловкость на {}, удача на {}'.format(p, a, l))
+        print('Обновленные характеристики: \nСила: {} \nЛовкость: {} \nУдача: {}'.format(self.power, self.agility, self.luck))
+        self.refresh_skills()
+
+    def refresh_skills(self):
+        self.health = self.power * 10
+        self.attack_speed = 60 / self.agility
+        self.defence = self.agility * 5
 
 
 class Monster:
@@ -73,15 +102,16 @@ class Fight:
         print('Общее время Персонажа:' , total_time_character, 'секунд')
         print('Общее время Монстра:', total_time_monster, 'секунд')
 
-        if total_time_character < total_time_monster:
-            winner = character
+        winner = character if total_time_character < total_time_monster else monster
+        if winner is character:
             print('Персонаж победил')
-        else:
-            winner = monster
-            print('Монстр победил')
+            character.level_up()
+            character.recover()
+            character.skills_up()
 
 
 c = Character(10, 10, 7)
 m = Monster()
 f = Fight()
 f.start_the_fight(c, m)
+
