@@ -234,9 +234,11 @@ class Fight:
             print('Персонаж победил')
             #character.level_up()
             #character.skills_up()
-            #if offer_chance < 2:
-            #f.offer_item(character, item1)
-            #else: pass
+            if offer_chance < 2:
+                items = (sword, armor, helmet, boots)
+                f.offer_item(character, random.choice(items))
+            else:
+                pass
 
     @staticmethod
     def offer_item(character, itm):
@@ -256,6 +258,7 @@ class Fight:
 
 c = Character(10, 10, 7)
 m = Monster()
+f = Fight()
 sword = Item('Sword')
 armor = Item('Armor')
 helmet = Item('Helmet')
