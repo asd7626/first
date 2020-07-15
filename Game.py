@@ -27,9 +27,6 @@ class Character:
     def lose_hp(self, x):
         self.health = self.health - x
 
-    def recover(self):
-        self.health = self.power * 10
-
     def level_up(self):
         self.level += 1
         print('Персонаж достиг {} уровня'.format(self.level))
@@ -44,39 +41,110 @@ class Character:
         self.luck += l
         print('Сила увеличена на {}, ловкость на {}, удача на {}'.format(p, a, l))
         print('Обновленные характеристики: \nСила: {} \nЛовкость: {} \nУдача: {}'.format(self.power, self.agility, self.luck))
-        self.refresh_skills()
+        self.refresh_health()
+        self.refresh_attack_speed()
 
-    def refresh_skills(self):
+    def recover(self, x):
+        self.health = 0
+        self.health += x
+
+    def refresh_health(self):
         self.health = self.power * 10
+
+    def refresh_attack_speed(self):
         self.attack_speed = 60 / self.agility
 
-    weapon_status = False
+    sword = None
+    helmet = None
+    armor = None
+    boots = None
 
-    def pick_weapon(self, other):
-        if self.weapon_status == False:
-            self.weapon_status = True
-            self.power += other.power
-            self.agility += other.agility
-            self.luck += other.luck
-            print('Персонаж подобрал одноручное оружие и получает'
-                  ' +{} к силе и +{} к удаче. Ловкость уменьшиласа на {} пунктов'
-                  .format(other.power, other.luck, other.agility))
-        else:
-            print('У персонажа уже есть оружие')
-        print(self.power, self.agility, self.luck)
-        self.refresh_skills()
+    def pick_item(self, item):
+        if item.kind == 'Sword':
+            if self.sword is None:
+                self.sword = True
+                self.power = self.power + math.floor(item.power * (self.luck/10))
+                self.agility = self.agility + item.agility
+                self.refresh_health()
+                self.refresh_attack_speed()
+                print('Персонаж подобрал меч')
+            else:
+                print('У персонажа уже есть меч!')
+        elif item.kind == 'Helmet':
+            if self.helmet is None:
+                self.helmet = True
+                self.health = self.health + math.floor(item.health * (self.luck/10))
+                print('Персонаж подобрал шлем')
+            else:
+                print('У персонажа уже есть шлем!')
+        elif item.kind == 'Armor':
+            if self.armor is None:
+                self.armor = True
+                self.agility = self.agility + item.agility
+                self.refresh_attack_speed()
+                self.health = self.health + math.floor(item.health * (self.luck/10))
+                print('Персонаж подобрал броню')
+            else:
+                print('У персонажа уже есть броня!')
+        elif item.kind == 'Boots':
+            if self.boots is None:
+                self.boots = True
+                self.agility = self.agility + item.agility
+                self.refresh_attack_speed()
+                self.health = self.health + math.floor(item.health * (self.luck/10))
+                print('Персонаж подобрал обувь')
+            else:
+                print('У персонажа уже есть обувь!')
 
-    def drop_weapon(self, other):
-        if self.weapon_status:
-            self.power -= other.power
-            self.agility -= other.agility
-            self.luck -= other.luck
-            self.weapon_status = False
-            print('Персонаж выбросил одноручное оружие')
-        else:
-            print('У персонажа нет оружия')
-        print(self.power, self.agility, self.luck)
-        self.refresh_skills()
+    def drop_item(self, item):
+
+        if item.kind == 'Sword':
+            if self.sword is True:
+                self.sword = None
+                self.power = self.power - math.floor(item.power * (self.luck/10))
+                self.agility = self.agility - item.agility
+                self.refresh_health()
+                self.refresh_attack_speed()
+                print('Персонаж выбросил меч')
+            else:
+                print('У персонажа нет оружия!')
+
+        elif item.kind == 'Helmet':
+            if self.helmet is True:
+                self.helmet = None
+                self.health = self.health - math.floor(item.health * (self.luck/10))
+                print('Персонаж выбросил шлем')
+            else:
+                print('У персонажа нет шлема!')
+
+        elif item.kind == 'Armor':
+            if self.armor is True:
+                self.armor = None
+                self.agility = self.agility - item.agility
+                self.refresh_attack_speed()
+                self.health = self.health - math.floor(item.health * (self.luck/10))
+                print('Персонаж выбросил броню')
+            else:
+                print('У персонажа нет брони!')
+
+        elif item.kind == 'Boots':
+            if self.boots is True:
+                self.boots = None
+                self.agility = self.agility - item.agility
+                self.refresh_attack_speed()
+                self.health = self.health - math.floor(item.health * (self.luck/10))
+                print('Персонаж выбросил обувь')
+            else:
+                print('У персонажа нет обуви!')
+
+    def characteristics(self):
+        return 'Характеристики Персонажа: \n' \
+               'Сила: {};' \
+               ' Ловкость: {};'\
+               ' Удача: {};'\
+               ' Здоровье: {};' \
+               ' Скорость атаки: {};' \
+               .format(self.power, self.agility, self.luck, self.health, self.attack_speed)
 
 
 class Monster:
@@ -98,42 +166,43 @@ class Monster:
     def lose_hp(self, x):
         self.health = self.health - x
 
-    def recover(self):
+    def refresh_health(self):
         self.health = self.power * 10
 
 
-class Weapon:
+class Item:
 
-    def __init__(self):
-        self.power = 0
-        self.agility = 0
-        self.luck = 0
+    def __init__(self, kind):
+        #self.items = ('Sword', 'Helmet', 'Armor', 'Boots')
+        #self.kind = random.choice(self.items)
+        self.kind = kind
+        print(self.kind + ' создан')
+        self.characteristics()
 
-
-class OneHandedWeapon(Weapon):
-
-    def __init__(self):
-        super().__init__()
-        self.power = 2
-        self.agility = -2
-        self.luck = 1
-
-
-class TwoHandedWeapon(Weapon):
-
-    def __init__(self):
-        super().__init__()
-        self.power = 4
-        self.agility = -3
-        self.luck = 2
+    def characteristics(self):
+        if self.kind == 'Sword':
+            self.power = random.randrange(2, 10, 1)
+            self.agility = -1
+            self.health = 0
+        elif self.kind == 'Helmet':
+            self.health = random.randrange(10, 20, 1)
+            self.power = 0
+            self.agility = 0
+        elif self.kind == 'Armor':
+            self.agility = -2
+            self.health = random.randrange(20, 30, 1)
+            self.power = 0
+        elif self.kind == 'Boots':
+            self.agility = 1
+            self.health = random.randrange(10, 20, 1)
+            self.power = 0
 
 
 class Fight:
 
     @staticmethod
     def start_the_fight(character, monster):
-        character.recover()
-        monster.recover()
+        health_to_recover = character.health
         character_punch_count = 0
         monster_punch_count = 0
         print('Бой начался. У Игрока {} хп, у Монстра {} хп'.format(character.health, monster.health))
@@ -158,18 +227,38 @@ class Fight:
         print('Общее время Монстра:', total_time_monster, 'секунд')
 
         winner = character if total_time_character < total_time_monster else monster
+        character.recover(health_to_recover)
+        monster.refresh_health()
+        offer_chance = random.randrange(1, 5)
         if winner is character:
             print('Персонаж победил')
             #character.level_up()
             #character.skills_up()
+            #if offer_chance < 2:
+            #f.offer_item(character, item1)
+            #else: pass
+
+    @staticmethod
+    def offer_item(character, itm):
+        print('Игроку выпал {} со следующими характеристиками:\n'
+              'Сила: {}, Ловкость: {} и Здоровье: {:.0f} хп.'
+              ' Хотите надеть этот предмет?'.format(itm.kind, math.floor(itm.power*(character.luck/10)),
+                itm.agility, math.floor(itm.health*(character.luck/10))))
+        yes_no_input = int(input('1 - Да. 2 - Нет: '))
+        if yes_no_input == 1:
+            character.pick_item(itm)
+            print('Персонаж подобрал {}. Ваши обновленные характеристики:'
+                  ' Сила: {}, Ловкость: {}, Здоровье: {}'.format(itm.kind, character.power, character.agility,
+                    character.health))
+        else:
+            print('Игрок отказался от предмета. Характеристики остались неизменными.')
 
 
 c = Character(10, 10, 7)
 m = Monster()
-f = Fight()
-f.start_the_fight(c, m)
-weapon1 = OneHandedWeapon()
-weapon2 = TwoHandedWeapon()
-c.pick_weapon(weapon2)
-f.start_the_fight(c, m)
+sword = Item('Sword')
+armor = Item('Armor')
+helmet = Item('Helmet')
+boots = Item('Boots')
+
 
